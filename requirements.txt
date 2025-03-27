@@ -1,0 +1,10 @@
+numpy
+librosa
+webrtcvad
+pydub
+transformers
+torch
+openai-whisper
+os
+json
+argparse
