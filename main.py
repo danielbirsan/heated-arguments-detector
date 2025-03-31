@@ -10,7 +10,6 @@ import webrtcvad
 from pydub import AudioSegment
 from pydub.utils import make_chunks
 
-# For Hugging Face sentiment/emotion pipeline
 from transformers import pipeline
 
 # For Whisper
@@ -18,8 +17,6 @@ import torch
 import whisper
 
 # 1. Audio Feature Extraction
-
-
 class AudioFeatureExtractor:
     """
     Extracts low-level audio features from an audio segment, such as:
@@ -30,7 +27,7 @@ class AudioFeatureExtractor:
 
     def __init__(self, sample_rate=16000):
         self.sample_rate = sample_rate
-        self.vad = webrtcvad.Vad(2)  # Medium aggressiveness
+        self.vad = webrtcvad.Vad(2) 
 
     def get_loudness_dbfs(self, audio_segment: AudioSegment) -> float:
         """Return average loudness (dBFS) of the segment."""
@@ -115,8 +112,6 @@ class WhisperTranscriber:
         return result["text"].strip()
 
 # 3. Text Sentiment/Emotion Analysis
-
-
 class TextEmotionAnalyzer:
 
     def __init__(self, model_name="bhadresh-savani/distilbert-base-uncased-emotion"):
@@ -146,8 +141,6 @@ class TextEmotionAnalyzer:
         return emotions
 
 # 4. Main Detector
-
-
 class HeatedArgumentDetector:
     """
     Combines all signals to produce a "heated score" for each chunk.
@@ -160,9 +153,9 @@ class HeatedArgumentDetector:
         sample_rate=16000,
         chunk_ms=3000,    # chunk size in ms (3 seconds)
         loudness_thresh=-20.0,
-        pitch_thresh=200.0,  # rough pitch threshold for "shout" (Hz)
-        overlap_thresh=0.3,  # overlap ratio threshold
-        anger_thresh=0.8,    # "anger" sentiment threshold
+        pitch_thresh=200.0,  # rough pitch threshold (Hz)
+        overlap_thresh=0.3,  # overlap ratio
+        anger_thresh=0.8,    # "anger" sentiment
         heated_score_cutoff=4.0,
         whisper_model_name="small",
         whisper_language="en"
@@ -189,7 +182,6 @@ class HeatedArgumentDetector:
         audio = audio.set_frame_rate(
             self.audio_extractor.sample_rate).set_channels(1)
 
-        # Create chunks
         chunks = make_chunks(audio, self.chunk_ms)
 
         results = []
@@ -273,7 +265,7 @@ class HeatedArgumentDetector:
         for info in chunk_info_list:
             if info["heated_score"] >= self.heated_score_cutoff:
                 if current_start is None:
-                    # start a new segment
+                
                     current_start = info["start_ms"]
                 current_end = info["end_ms"]
             else:
@@ -302,7 +294,6 @@ class HeatedArgumentDetector:
 
 
 # 5. Main Script
-
 def main():
     parser = argparse.ArgumentParser(
         description="Detect heated argument segments from an audio file using chunk-based Whisper STT."
