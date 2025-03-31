@@ -4,18 +4,18 @@ Automatically detect heated arguments or tense moments in audio files (MP3/WAV).
 
 ---
 
-## 🚀 Features
+##  Features
 
-- 📊 Audio Feature Extraction: Loudness (dBFS), pitch (Hz), and voice overlap
-- 🧠 Speech-to-Text with Whisper (OpenAI)
-- 😡 Emotion Detection with Hugging Face Transformers (e.g. anger)
-- ⏱️ Outputs timestamps of “heated” segments
-- 📦 Export results to JSON
-- 🔍 Chunk-level analysis for debugging
+-  Audio Feature Extraction: Loudness (dBFS), pitch (Hz), and voice overlap
+-  Speech-to-Text with Whisper (OpenAI)
+-  Emotion Detection with Hugging Face Transformers (e.g. anger)
+-  Outputs timestamps of “heated” segments
+-  Export results to JSON
+-  Chunk-level analysis for debugging
 
 ---
 
-## 📦 Requirements
+##  Requirements
 
 ```bash
 pip install pydub librosa webrtcvad torch transformers openai-whisper
@@ -27,7 +27,7 @@ You will also need:
 
 ---
 
-## 🛠️ Usage
+##  Usage
 
 ```bash
 python mp3totext.py \
@@ -46,7 +46,7 @@ python mp3totext.py \
 
 ---
 
-## 🧠 How It Works
+##  How It Works
 
 1. **Chunking**: Audio is split into 3-second chunks.
 2. **Audio Feature Analysis**:
@@ -65,14 +65,14 @@ python mp3totext.py \
 
 ---
 
-## 📁 Outputs
+##  Outputs
 
 - `heated_segments.json`: Final list of detected argument timestamps.
 - `detailed_chunks.json`: Debug info for each chunk including transcript, pitch, loudness, and emotion.
 
 ---
 
-## 📊 Example Output
+##  Example Output
 
 ```json
 [
@@ -89,7 +89,7 @@ python mp3totext.py \
 
 ---
 
-## 📌 Applications
+##  Applications
 
 - Podcast editing
 - Meeting transcription & review
@@ -98,7 +98,7 @@ python mp3totext.py \
 
 ---
 
-## 🔧 Configuration Parameters
+##  Configuration Parameters
 
 | Parameter               | Description                              | Default       |
 |------------------------|------------------------------------------|---------------|
@@ -111,7 +111,7 @@ python mp3totext.py \
 
 ---
 
-## 📚 References
+##  References
 
 - [OpenAI Whisper](https://github.com/openai/whisper)
 - [Hugging Face Transformers](https://huggingface.co/docs/transformers/index)
