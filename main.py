@@ -18,12 +18,7 @@ import whisper
 
 # 1. Audio Feature Extraction
 class AudioFeatureExtractor:
-    """
-    Extracts low-level audio features from an audio segment, such as:
-     - Loudness (dBFS)
-     - Average pitch (using librosa)
-     - Voice Activity Detection (VAD) for overlap analysis
-    """
+   
 
     def __init__(self, sample_rate=16000):
         self.sample_rate = sample_rate
@@ -34,9 +29,7 @@ class AudioFeatureExtractor:
         return audio_segment.dBFS
 
     def get_pitch(self, audio_samples: np.ndarray) -> float:
-        """
-        Estimate average pitch from non-zero values using librosa's piptrack.
-        """
+      
         pitches, magnitudes = librosa.piptrack(
             y=audio_samples, sr=self.sample_rate)
         pitches_nonzero = pitches[magnitudes > np.median(magnitudes)]
@@ -45,10 +38,7 @@ class AudioFeatureExtractor:
         return float(np.mean(pitches_nonzero))
 
     def get_vad_segments(self, audio_segment: AudioSegment, chunk_ms=30):
-        """
-        Use WebRTC VAD to determine which 30ms frames contain speech.
-        Returns a list of booleans indicating speech frames.
-        """
+     
         raw_data = audio_segment.raw_data
         frame_length = int(self.sample_rate * (chunk_ms /
                            1000.0) * 2)  # 16-bit = 2 bytes
@@ -64,10 +54,7 @@ class AudioFeatureExtractor:
         return speech_flags
 
     def estimate_overlap(self, speech_flags_chunk1, speech_flags_chunk2) -> float:
-        """
-        For single-channel audio, we can't truly do multi-speaker overlap here.
-        We'll just compare the same flags as a placeholder.
-        """
+      
         if not speech_flags_chunk1 or not speech_flags_chunk2:
             return 0.0
         min_len = min(len(speech_flags_chunk1), len(speech_flags_chunk2))
@@ -80,10 +67,7 @@ class AudioFeatureExtractor:
 # 2. Whisper-Based Speech-to-Text
 
 class WhisperTranscriber:
-    """
-    Transcribes each chunk of audio using OpenAI Whisper.
-    For Romanian, pass language='ro'; for English, 'en', etc.
-    """
+   
 
     def __init__(self, model_name="small", language="en"):
         print(f"Loading Whisper model: {model_name}")
@@ -94,10 +78,7 @@ class WhisperTranscriber:
         self.language = language
 
     def transcribe(self, audio_segment: AudioSegment) -> str:
-        """
-        Transcribe a chunk with Whisper.
-        Note: short chunks (~3s) can yield poor accuracy.
-        """
+       
         # Export chunk to a temporary WAV file
         temp_wav = "temp_chunk_whisper.wav"
         audio_segment.export(temp_wav, format="wav")
@@ -142,19 +123,15 @@ class TextEmotionAnalyzer:
 
 # 4. Main Detector
 class HeatedArgumentDetector:
-    """
-    Combines all signals to produce a "heated score" for each chunk.
-    Then merges adjacent heated chunks into final timestamps.
-    Outputs both final segments and chunk-level analysis in JSON.
-    """
+
 
     def __init__(
         self,
         sample_rate=16000,
-        chunk_ms=3000,    # chunk size in ms (3 seconds)
+        chunk_ms=3000,   
         loudness_thresh=-20.0,
-        pitch_thresh=200.0,  # rough pitch threshold (Hz)
-        overlap_thresh=0.3,  # overlap ratio
+        pitch_thresh=200.0,
+        overlap_thresh=0.3,  
         anger_thresh=0.8,    # "anger" sentiment
         heated_score_cutoff=4.0,
         whisper_model_name="small",
@@ -189,53 +166,42 @@ class HeatedArgumentDetector:
             start_ms = i * self.chunk_ms
             end_ms = start_ms + len(chunk)
 
-            # (A) Loudness
             loudness = self.audio_extractor.get_loudness_dbfs(chunk)
 
-            # (B) Pitch
             samples = np.array(chunk.get_array_of_samples()).astype(np.float32)
             pitch_val = self.audio_extractor.get_pitch(
                 samples / (2**15))  # scale to -1..1
 
-            # (C) Overlap
             speech_flags = self.audio_extractor.get_vad_segments(
                 chunk, chunk_ms=30)
             overlap = self.audio_extractor.estimate_overlap(
                 speech_flags, speech_flags)
 
-            # (D) Whisper transcript
             transcript = self.whisper_transcriber.transcribe(chunk)
 
-            # (E) Emotion analysis
+    
             emotion_scores = self.emotion_analyzer.analyze(transcript)
             anger_score = emotion_scores.get("anger", 0.0)
 
-            # (F) Weighted "heated" scoring
             heated_score = 0
 
-            # Loudness
             if loudness >= self.loudness_thresh:
                 heated_score += 1
 
-            # Pitch
             if pitch_val >= self.pitch_thresh:
                 heated_score += 1
 
-            # Overlap
             if overlap >= self.overlap_thresh:
                 heated_score += 1
 
-            # Anger
             if anger_score >= self.anger_thresh:
                 heated_score += 1
 
-            # Negative/Heated keywords
             heated_keywords = ["fight", "shut up",
-                               "idiot", "stupid", "mad", "hate"]  # Add more keywords as needed to imporovre accuracy
+                               "idiot", "stupid", "mad", "hate"] 
             if any(kw in transcript.lower() for kw in heated_keywords):
                 heated_score += 1
 
-            # Collect chunk data
             chunk_info = {
                 "start_ms": start_ms,
                 "end_ms": end_ms,
@@ -293,7 +259,7 @@ class HeatedArgumentDetector:
         return f"{mm}:{ss:02d}"
 
 
-# 5. Main Script
+# 5. Main 
 def main():
     parser = argparse.ArgumentParser(
         description="Detect heated argument segments from an audio file using chunk-based Whisper STT."
